@@ -2,8 +2,11 @@
 
 from utils.loss_function import *
 from utils.optim import set_optimizer
+from torchnet import meter
 import numpy as np
 import time, os, gc
+import tqdm
+import torch as t
 
 class Solver():
 
@@ -22,24 +25,41 @@ class Solver():
     def test(self, *args, **kargs):
         raise NotImplementedError
 
+    def write_csv(results,file_name):
+        import csv
+        with open(file_name,'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(['id','midPrice'])
+            writer.writerows(results)
 
-class XXXSolver(Solver):#类名要改
+class FirstSolver(Solver):#类名要改
 
     def __init__(self, model, loss_function, optimizer, exp_path, logger, device=None):
         super(XXXSolver, self).__init__(model, loss_function, optimizer, exp_path, logger, device)
         self.best_result = {"losses": [], "iter": 0, "v_acc": 0., "t_acc": 0., "v_loss": float('inf')}
 
     def decode(self, data_inputs, data_outputs, output_path, opt):
-        pass
+        model = opt.model().eval()
+        if opt.load_model_path:
+            model.load(opt.load_model_path)
+        model.to(opt.device)
+
+        results = []
         ########################### Evaluation Phase ############################
+        for ii, data in enumerate(data_inputs):
+            input = data.to(opt.device)
+            scores = model(input)
+            results.append(scores.numpy())
 
         ###################### Obtain minibatch data ######################
+        accuracy = np.sum((data_outputs.numpy() - np.array(results))**2)
 
         ############################# Writing Result to File ###########################
+        self.write_csv(results, output_path)
 
         ########################### Calculate accuracy ###########################
 
-        # return accuracy
+        return accuracy
 
     def train_and_decode(self, train_inputs, train_outputs, valid_inputs, valid_outputs,
                          test_inputs, test_outputs, opt, max_epoch=100, later=10):
@@ -103,8 +123,3 @@ class XXXSolver(Solver):#类名要改
                          % (self.best_result['iter'], self.best_result['v_loss'], self.best_result['v_acc'],
                             self.best_result['t_acc']))
         self.model.load_model(os.path.join(self.exp_path, 'model.pkl'))
-
-
-
-
-
