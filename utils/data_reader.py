@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 import os, csv, datetime, time, random
 import torch
+from torch.autograd.variable import Variable as V
 import numpy as np
 
 TMP = ''
@@ -28,7 +29,7 @@ class Data():
         self.init_time()
 
     def get_feature_vector(self):
-        return torch.Tensor(self.fv)
+        return V(torch.Tensor(self.fv))
 
     def init_time(self):
         time_digit = self.uptime
@@ -60,10 +61,10 @@ def get_fromcsv(root):
                 if data.uptime < last_time:
                     day_count += 1
                     data.day = day_count
-                    print(data.day)
+                    #print(data.day)
 
-                if day_count == 3:
-                    break
+                # if day_count == 3:
+                #     break
 
                 last_time = data.uptime
             else:
@@ -228,7 +229,7 @@ def get_minibatch(dataset, labels, batch_size, seq_len):
         if count == batch_size:
             mini_batch_data = normalize_minibatch(mini_batch_data, seq_len)
             batch_data.append(mini_batch_data)
-            batch_label.append(torch.Tensor(mini_batch_label))
+            batch_label.append(V(torch.Tensor(mini_batch_label)))
             mini_batch_data = []
             mini_batch_label = []
             count = 0
@@ -240,7 +241,7 @@ def normalize_minibatch(mini_batch, seq_len):
     for data in mini_batch:
         for i in range(seq_len):
             batch_data[i].append(data[i])
-    batch_data = torch.Tensor(batch_data)
+    batch_data = V(torch.Tensor(batch_data))
 
     return batch_data
 
