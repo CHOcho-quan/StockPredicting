@@ -259,7 +259,7 @@ def DataLoader(root, N, seq_len, sample_gap, batch_size, dev_bs = 1, test_bs = 1
 
 
 if __name__ == '__main__':
-    ROOT = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'DM Project')
-    DATAROOT = os.path.join(ROOT, 'data', 'data.csv')
-    (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader(DATAROOT, 10, 10, 10, 32)
+    # ROOT = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'DM Project')
+    # DATAROOT = os.path.join(ROOT, 'data', 'data.csv')
+    (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data/data.csv", 10, 10, 10, 32)
     raise ValueError

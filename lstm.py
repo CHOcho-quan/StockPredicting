@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 import logging
 import gc
+import pickle
 
 install_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(install_path)  # append root dir to sys.path
@@ -13,6 +14,7 @@ sys.path.append(install_path)  # append root dir to sys.path
 #import maodel
 
 from utils.data_reader import DataLoader
+# from utils.data_reader import DataLoader
 from utils.optim import set_optimizer
 from utils.loss_function import select_loss_function
 from models.lstm_model import LSTMModel
@@ -62,7 +64,14 @@ encode_size = opt.encode_size
 hidden_size = opt.hidden_size
 num_layers = opt.num_layers
 
-(train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader(DATAROOT, N, seq_len, sample_gap, batch_size)
+if os.path.exists(path="./data/mydata.pickle"):
+    with open('./data/mydata.pickle', 'rb') as load_data:
+        (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = pickle.load(load_data)
+else:
+    (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data/data.csv", N, seq_len, sample_gap, batch_size)
+    with open('./data/mydata.pickle', 'wb') as save_data:
+        data_list = [(train_input, train_label), (dev_input, dev_label), (test_input, test_label)]
+        pickle.dump(data_list, save_data)
 
 train_model = LSTMModel(input_size, encode_size, hidden_size, num_layers, batch_size).to(opt.device)
 
