@@ -1,8 +1,10 @@
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.decomposition import PCA
 import os
 import pickle
 import pandas as pd
 import numpy as np
+import tqdm
 
 def splitData(X, y, rate):
     X_train = X[int(X.shape[0]*rate):]
@@ -59,43 +61,54 @@ if __name__ == '__main__':
     # print(train_label)
     # print(np.array(train_label).shape)
     print("Generating train input;")
-    for batch in train_input:
+    for batch in tqdm.tqdm(train_input):
         batch = np.array(batch)
         for b in batch:
             X_train.append(b)
 
     print("Generating train label;")
-    for batch in train_label:
+    for batch in tqdm.tqdm(train_label):
         batch = np.array(batch)
         for b in batch:
             Y_train.append(b)
 
     print("Generating validation input;")
-    for batch in dev_input:
+    for batch in tqdm.tqdm(dev_input):
         batch = np.array(batch)
         X_val.append(batch)
 
     print("Generating validation label;")
-    for batch in dev_label:
+    for batch in tqdm.tqdm(dev_label):
         batch = np.array(batch)
         for b in batch:
             Y_val.append(b)
 
     print("Generating test input;")
-    for batch in test_input:
+    for batch in tqdm.tqdm(test_input):
         batch = np.array(batch)
         X_test.append(batch)
 
 
     print("Generating test label;")
-    for batch in test_label:
+    for batch in tqdm.tqdm(test_label):
         batch = np.array(batch)
         for b in batch:
             Y_test.append(b)
 
-    regressor = RandomForestRegress(np.array(X_train).reshape(-1, 1080), np.array(Y_train), 2, 0, 100)
+    # Implementing PCA on the dataset
+    print("Implementing PCA")
+    pca = PCA(n_components=78)
+    X_train = np.array(X_train).reshape(-1, 108)
+    X_train = pca.fit_transform(X_train)
+    X_test = np.array(X_test).reshape(-1, 108)
+    X_test = pca.fit_transform(X_test)
 
-    pred = regressor.predict(np.array(X_test).reshape(-1, 1080))
+    # Random Forest regression
+    print("Implementing Random Forest Regression")
+    regressor = RandomForestRegress(X_train.reshape(-1, 780), np.array(Y_train), 2, 0, 100)
+
+    # Calculating the MSE Loss for the standard
+    pred = regressor.predict(X_test.reshape(-1, 780))
     MSE = np.mean(np.square(pred - np.array(Y_test)))
     print("MSE LOSS:",MSE)
     # write_csv(pred)
