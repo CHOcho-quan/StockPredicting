@@ -5,8 +5,8 @@ Currently the data is cleaned by meaning the data inside 1 second. Using 10 x 10
 
 | Method \ MSE Loss | with PCA | without PCA |
 | ----------------- | -------- | ----------- |
-| LSTM Network      |          | 2.29        |
-| GBDT              |          | 2.19        |
+| LSTM Network      | 2.27     | 2.29        |
+| GBDT              | 2.19     | 2.19        |
 | Random Forest     | 2.25     | 2.29        |
 
 
