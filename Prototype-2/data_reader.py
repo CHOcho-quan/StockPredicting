@@ -1,7 +1,5 @@
 #-*- coding:utf-8 -*-
 import os, csv, datetime, time, random
-import torch
-from torch.autograd.variable import Variable as V
 import numpy as np
 
 TMP = ''
@@ -33,7 +31,7 @@ class Data():
         self.init_time()
 
     def get_feature_vector(self):
-        return V(torch.Tensor(self.fv))
+        return np.array(self.fv)
 
     def init_time(self):
         """
@@ -235,7 +233,7 @@ def divid_dataset(dataset, labels):
 
     return (train_input, train_label), (dev_input, dev_label), (test_input, test_label)
 
-def DataLoader(root, N, seq_len, sample_gap, batch_size, dev_bs = 1, test_bs = 1):
+def DataLoader(root, N, seq_len, sample_gap, dev_bs = 1, test_bs = 1):
     """
     root : the place of the csv file
     N : the n-th future prediction
@@ -249,13 +247,11 @@ def DataLoader(root, N, seq_len, sample_gap, batch_size, dev_bs = 1, test_bs = 1
     dataset, labels = get_label(dataset, N, seq_len, sample_gap)
     (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = divid_dataset(dataset, labels)
 
-    return (train_input, train_label), (dev_input, dev_label), (test_input, test_label)
-
-
-
+    return (np.array(train_input), np.array(train_label)), (np.array(dev_input), np.array(dev_label)), (np.array(test_input), np.array(test_label))
 
 if __name__ == '__main__':
     # ROOT = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'DM Project')
     # DATAROOT = os.path.join(ROOT, 'data', 'data.csv')
     (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data.csv", 10, 10, 10, 32)
+    print(type(train_input[0]))
     raise ValueError
