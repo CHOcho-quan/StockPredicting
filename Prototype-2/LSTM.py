@@ -6,19 +6,20 @@ from keras.layers import LSTM, Dense, Dropout, BatchNormalization
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from data_reader import DataLoader
 
-N = 50
-seq_len = 50
-sample_gap = 100
+N = 10
+seq_len = 30
+sample_gap = 30
 
-if os.path.exists(path="./data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap)):
-    with open("./data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'rb') as load_data:
+if os.path.exists(path="./indicator_data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap)):
+    with open("./indicator_data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'rb') as load_data:
         (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = pickle.load(load_data)
 else:
     (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data.csv", N, seq_len, sample_gap)
-    with open("./data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'wb') as save_data:
+    with open("./indicator_data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'wb') as save_data:
         data_list = [(train_input, train_label), (dev_input, dev_label), (test_input, test_label)]
         pickle.dump(data_list, save_data)
 
+print(train_input.shape)
 """
 Train input shape N_samples * seq_len * 108
 Train label shape N_samples * 1

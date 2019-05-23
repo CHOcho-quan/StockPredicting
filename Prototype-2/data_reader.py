@@ -161,7 +161,52 @@ def clean_data(dataset):
 
     return new_dataset
 
-def get_label(new_dataset, n, seq_len, sample_gap):
+def get_raw_label(new_dataset, n, seq_len, sample_gap):
+    data_day_order = []
+    tmp = []
+    apm = 'am'
+    dataset = []
+    labels = []
+    for data in new_dataset:
+        if data.apm == apm:
+            tmp.append(data)
+        else:
+            data_day_order.append(tmp)
+            tmp = [data]
+            apm = 'pm' if apm == 'am' else 'am'
+
+    for i, data_batch in enumerate(data_day_order):
+        data_day_order[i] = data_batch[:-1 * n]
+        sample_num = (len(data_day_order[i]) // sample_gap) - 1
+        for j in range(sample_num):
+            left = j * sample_gap
+            mid = left + seq_len
+            right = left + seq_len + n
+            tmp = []
+            for k in range(left, mid):
+                tmp.append(data_day_order[i][k].midprice)
+                tmp.append(data_day_order[i][k].lastprice)
+                tmp.append(data_day_order[i][k].volume)
+                tmp.append(data_day_order[i][k].lastvolume)
+                tmp.append(data_day_order[i][k].turnover)
+                tmp.append(data_day_order[i][k].lastturnover)
+                tmp.append(data_day_order[i][k].upper)
+                tmp.append(data_day_order[i][k].lower)
+                tmp.extend(data_day_order[i][k].askprice)
+                tmp.extend(data_day_order[i][k].bidprice)
+                tmp.extend(data_day_order[i][k].askvolume)
+                tmp.extend(data_day_order[i][k].bibdvolume)
+            dataset.append(tmp)
+            current = data_day_order[i][mid - 1].askprice[0] + data_day_order[i][mid - 1].bidprice[0]
+            future = data_day_order[i][right - 1].askprice[0] + data_day_order[i][right - 1].bidprice[0]
+            label = (future - current) / 2
+            labels.append(label)
+
+    print('total data:\t{}\ttotal labels:\t{}'.format(len(dataset), len(labels)))
+
+    return dataset, labels
+
+def get_indicator_label(new_dataset, n, seq_len, sample_gap):
     data_day_order = []
     tmp = []
     apm = 'am'
@@ -233,7 +278,7 @@ def divid_dataset(dataset, labels):
 
     return (train_input, train_label), (dev_input, dev_label), (test_input, test_label)
 
-def DataLoader(root, N, seq_len, sample_gap, dev_bs = 1, test_bs = 1):
+def DataLoader(root, N, seq_len, sample_gap, type=True, dev_bs = 1, test_bs = 1):
     """
     root : the place of the csv file
     N : the n-th future prediction
@@ -244,7 +289,10 @@ def DataLoader(root, N, seq_len, sample_gap, dev_bs = 1, test_bs = 1):
     dataset = get_fromcsv(root)
     dataset = clean_data(dataset)
     print(np.array(dataset).shape)
-    dataset, labels = get_label(dataset, N, seq_len, sample_gap)
+    if type:
+        dataset, labels = get_indicator_label(dataset, N, seq_len, sample_gap)
+    else:
+        dataset, labels = get_raw_label(dataset, N, seq_len, sample_gap)
     (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = divid_dataset(dataset, labels)
 
     return (np.array(train_input), np.array(train_label)), (np.array(dev_input), np.array(dev_label)), (np.array(test_input), np.array(test_label))
@@ -252,6 +300,6 @@ def DataLoader(root, N, seq_len, sample_gap, dev_bs = 1, test_bs = 1):
 if __name__ == '__main__':
     # ROOT = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 'DM Project')
     # DATAROOT = os.path.join(ROOT, 'data', 'data.csv')
-    (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data.csv", 10, 10, 10, 32)
+    (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data.csv", 10, 10, 10)
     print(type(train_input[0]))
     raise ValueError

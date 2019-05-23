@@ -17,12 +17,12 @@ def AdaRegress(X, y, n_estimators, random_st):
     return regr
 
 if __name__ == '__main__':
-    if os.path.exists(path="./data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap)):
-        with open("./data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'rb') as load_data:
+    if os.path.exists(path="./indicator_data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap)):
+        with open("./indicator_data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'rb') as load_data:
             (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = pickle.load(load_data)
     else:
         (train_input, train_label), (dev_input, dev_label), (test_input, test_label) = DataLoader("./data.csv", N, seq_len, sample_gap)
-        with open("./data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'wb') as save_data:
+        with open("./indicator_data/mydata_{0}_{1}_{2}.pickle".format(N, seq_len, sample_gap), 'wb') as save_data:
             data_list = [(train_input, train_label), (dev_input, dev_label), (test_input, test_label)]
             pickle.dump(data_list, save_data)
 
