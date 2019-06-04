@@ -25,4 +25,4 @@ We can see that wavelet transform gets the best result. Linear transformation is
 
 Finally we use the method mentioned in the [paper](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0180944) where use wavelet transform, SAE & LSTM together to get a better performance. WT can wipe out the noises, SAE can give us some high dimensional features and finally LSTM predicts. The network structure is as follow.
 
-![structure](./structure.png)
+![structure](./structure.PNG)
